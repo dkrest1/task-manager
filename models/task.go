@@ -8,7 +8,8 @@ import (
 
 type Task struct {
 	gorm.Model
-	UserId			*User
+	UserId			uint
+	User            User
 	Title 			string	`gorm:"not null"`
 	Description		string
 	DueDate       	time.Time

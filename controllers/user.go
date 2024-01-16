@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+	"net/http"
 
- 	"net/http"
-
+	"github.com/dkrest1/task-manager/models"
 	// "github.com/dkrest1/task-manager/models"
 )
 
@@ -15,7 +16,28 @@ func NewUserController () *UserController {
 }
 
 func(c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	// task := models.Task{}
+	var newUser models.User
+
+	err := json.NewDecoder(r.Body).Decode(&newUser)
+
+	if err != nil {
+		http.Error(w, "Invalid request Data", http.StatusBadRequest)
+	}
+
+	if newUser.Username == "" || newUser.Email == "" || newUser.Password == "" {
+		http.Error(w, "Username, Email, and Password are required fields", http.StatusBadRequest)
+	}
+
+	createdUser, err := c.CreateUser(newUser)
+
+	if err != nil {
+		http.Error(w, "Failed to create a user", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdUser)
 	
 }
 
