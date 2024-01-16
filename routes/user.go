@@ -14,9 +14,9 @@ func UserRoute(userController *controllers.UserController ) http.Handler {
 
 	router.HandleFunc("/", userController.CreateUser).Methods("POST")
 	router.HandleFunc("/", userController.GetUsers).Methods("GET")
-	router.HandleFunc("/{id}", userController.FindUser).Methods("GET")
-	router.HandleFunc("/{id}", userController.UpdateUser).Methods("PATCH")
-	router.HandleFunc("/{id}", userController.DeleteUser).Methods("DELETE")
+	router.HandleFunc("/{userId}", userController.FindUser).Methods("GET")
+	router.HandleFunc("/{userId}", userController.UpdateUser).Methods("PATCH")
+	router.HandleFunc("/{userId}", userController.DeleteUser).Methods("DELETE")
 
 	return router
 }
