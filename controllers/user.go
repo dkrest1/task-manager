@@ -31,6 +31,7 @@ func(c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request Data", http.StatusBadRequest)
 	}
 
+
 	if newUser.Username == "" || newUser.Email == "" || newUser.Password == "" || newUser.Name == "" {
 		http.Error(w, "Username, Email, and Password are required fields", http.StatusBadRequest)
 	}
