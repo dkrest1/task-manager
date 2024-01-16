@@ -4,8 +4,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-)
-
+)				
 type Task struct {
 	gorm.Model
 	UserId			uint
@@ -13,6 +12,6 @@ type Task struct {
 	Title 			string	`gorm:"not null"`
 	Description		string
 	DueDate       	time.Time
-	Completed		bool
+	Completed		bool `gorm:"default:false"`
 
 }

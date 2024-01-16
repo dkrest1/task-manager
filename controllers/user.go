@@ -29,15 +29,18 @@ func(c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "Invalid request Data", http.StatusBadRequest)
+		return
 	}
 
 
 	if newUser.Username == "" || newUser.Email == "" || newUser.Password == "" || newUser.Name == "" {
 		http.Error(w, "Username, Email, and Password are required fields", http.StatusBadRequest)
+		return
 	}
 
 	if err :=  c.DB.Create(&newUser).Error; err != nil {
 		http.Error(w, "Failed to create a user", http.StatusInternalServerError)
+		return 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -103,7 +106,6 @@ func(c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		http.Error(w, "Failed to fetch user", http.StatusInternalServerError)
-
 		return
 	}
 
