@@ -25,9 +25,10 @@ func main() {
 	// Controllers
 	userController := controllers.NewUserController()
 	taskController := controllers.NewTaskController()
+	authController := controllers.NewAuthController()
 
 	// croutes
-	appRoutes := routes.Routes(userController, taskController)
+	appRoutes := routes.Routes(userController, taskController, authController)
 
 	port, exist := os.LookupEnv("PORT")
 

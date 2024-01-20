@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dkrest1/task-manager/configs"
 	"github.com/dkrest1/task-manager/models"
@@ -12,6 +13,31 @@ import (
 	"gorm.io/gorm"
 )
 
+type TaskResponse struct {
+	ID            uint        `json:"id"`
+	UserId        uint        `json:"userId"`
+	User          UserResponse `json:"user"`
+	Title         string	  `json:"title"`
+	Description   string      `json:"description"`
+	DueDate       time.Time   `json:"dueDate"`
+	Completed     bool        `json:"completed"`
+	CreatedAt     time.Time   `json:"createdAt"`
+	UpdatedAt     time.Time   `json:"updatedAt"`
+}
+
+func newTaskResponse(task *models.Task) TaskResponse {
+	return TaskResponse {
+		ID:           task.ID,
+		UserId:       task.UserId,
+		User:         NewUserResponse(&task.User),
+		Title:        task.Title,
+		Description:  task.Description,
+		DueDate:      task.DueDate,
+		Completed:    task.Completed,
+		CreatedAt:    task.CreatedAt,
+		UpdatedAt:    task.UpdatedAt, 
+	}
+} 
 
 type TaskController struct{
 	DB *gorm.DB
@@ -70,9 +96,12 @@ func(c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	c.DB.Preload("User").First(&newTask, newTask.ID)
 
+	taskResponse := newTaskResponse(&newTask)
+
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newTask)
+	json.NewEncoder(w).Encode(taskResponse)
 
 }
 
@@ -110,9 +139,16 @@ func(c *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
+	var taskResponses []TaskResponse
+
+	for _, task := range tasks {
+		taskResponse := newTaskResponse(&task)
+		taskResponses = append(taskResponses, taskResponse)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(w).Encode(taskResponses)
 }
 
 func(c *TaskController) FindTask(w http.ResponseWriter, r *http.Request) {
@@ -148,9 +184,11 @@ func(c *TaskController) FindTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	taskResponse := newTaskResponse(&task)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(task)
+	json.NewEncoder(w).Encode(taskResponse)
 }
 
 func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -215,9 +253,11 @@ func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
+	taskResponse := newTaskResponse(&task)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(task)
+	json.NewEncoder(w).Encode(taskResponse)
 }
 
 func(c *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {

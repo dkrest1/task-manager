@@ -4,13 +4,36 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/dkrest1/task-manager/configs"
 	"github.com/dkrest1/task-manager/models"
+	"github.com/dkrest1/task-manager/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
+// User response
+type UserResponse struct {
+	ID         uint       `json:"id"`
+	Username   string     `json:"username"`
+	Name       string     `json:"name"`
+	Email      string     `json:"email"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
+
+}
+
+func NewUserResponse(user *models.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}
 
 type UserController struct{
 	DB *gorm.DB
@@ -38,14 +61,47 @@ func(c *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var existingEmail models.User
+	err = c.DB.Where("email = ?", newUser.Email).First(&existingEmail).Error
+	if err == nil {
+		http.Error(w, "Email already exist", http.StatusBadRequest)
+		return
+	}else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		http.Error(w, "Failed to check email existence", http.StatusInternalServerError)
+		return
+	}
+
+	var existingUsername models.User
+	err = c.DB.Where("username = ?", newUser.Username).First(&existingUsername).Error
+	if err == nil {
+		http.Error(w, "Username already exist", http.StatusBadRequest)
+		return
+	}else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		http.Error(w, "Failed to check username existence", http.StatusInternalServerError)
+		return
+	}
+
+	// Hash password
+	hashPassword, err := utils.HashPassword(newUser.Password)
+
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+
+	newUser.Password = hashPassword
+
 	if err :=  c.DB.Create(&newUser).Error; err != nil {
 		http.Error(w, "Failed to create a user", http.StatusInternalServerError)
 		return 
 	}
 
+	// User response
+	userResponse := NewUserResponse(&newUser)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newUser)
+	json.NewEncoder(w).Encode(userResponse)
 	
 }
 
@@ -59,9 +115,15 @@ func(c *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
+	var userResponses []UserResponse
+	for _, user := range users {
+		userResponse := NewUserResponse(&user)
+		userResponses = append(userResponses, userResponse)
+	}
+
 	w.Header().Set("Content-Type", "applicatioon/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(users)
+	json.NewEncoder(w).Encode(userResponses)
 }
 
 func(c *UserController) FindUser(w http.ResponseWriter, r *http.Request) {
@@ -83,9 +145,11 @@ func(c *UserController) FindUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userResponse := NewUserResponse(&user)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(userResponse)
 }
 
 func(c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -121,9 +185,11 @@ func(c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userResponse := NewUserResponse(&updatedUser)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(updatedUser)
+	json.NewEncoder(w).Encode(userResponse)
 }
 
 func(c *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
