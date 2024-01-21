@@ -301,4 +301,3 @@ func(c *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Task deleted successfully")
 
 }
-
