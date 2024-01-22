@@ -10,6 +10,7 @@ import (
 	"github.com/dkrest1/task-manager/controllers"
 	"github.com/dkrest1/task-manager/routes"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -30,6 +31,9 @@ func main() {
 	// croutes
 	appRoutes := routes.Routes(userController, taskController, authController)
 
+	// enable cors
+	handler := cors.Default().Handler(appRoutes)
+
 	port, exist := os.LookupEnv("PORT")
 
 	if !exist {
@@ -38,7 +42,7 @@ func main() {
 
 	fmt.Printf("Server is live and running on port %v 🚀🚀🚀", port)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), appRoutes)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), handler)
 
 	if err != nil {
 		log.Fatal(err)

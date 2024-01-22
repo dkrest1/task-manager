@@ -9,6 +9,7 @@ import (
 
 	"github.com/dkrest1/task-manager/configs"
 	"github.com/dkrest1/task-manager/models"
+	"github.com/dkrest1/task-manager/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
@@ -57,7 +58,7 @@ func(c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64) 
 
 	if err != nil {
-		http.Error(w, "Invalid userId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid userId format", http.StatusBadRequest)
 		return 
 	}
 
@@ -67,9 +68,9 @@ func(c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			http.Error(w, "User not found", http.StatusNotFound)
+			utils.HandleGenericResponse(w, "User not found", http.StatusBadRequest)
 		}else {
-			http.Error(w, "Failed to fetch user", http.StatusInternalServerError)
+			utils.HandleGenericResponse(w, "Failed to fetch user", http.StatusInternalServerError)
 		}
 
 		return
@@ -78,30 +79,31 @@ func(c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	var newTask  models.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&newTask); err != nil {
-		http.Error(w, "Invalid request format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid request format", http.StatusBadRequest)
 		return 
 	}
 
 	if newTask.Description == "" || newTask.Title == "" {
-		http.Error(w, "Task must have title and description", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Task must have title and description", http.StatusBadRequest)
 		return
 	}
 
 	newTask.UserId = uint(userId)
 
 	if err := c.DB.Create(&newTask).Error; err != nil {
-		http.Error(w, "Failed to create task", http.StatusInternalServerError)
+		utils.HandleGenericResponse(w, "Failed to create task", http.StatusInternalServerError)
 		return
 	}
 
 	c.DB.Preload("User").First(&newTask, newTask.ID)
 
 	taskResponse := newTaskResponse(&newTask)
+	response := utils.NewGenericResponse(http.StatusCreated, "Created", taskResponse)
 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(taskResponse)
+	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -113,7 +115,7 @@ func(c *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64) 
 
 	if err != nil {
-		http.Error(w, "Invalid userId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid userId format", http.StatusBadRequest)
 		return 
 	}
 
@@ -123,9 +125,9 @@ func(c *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			http.Error(w, "User not found", http.StatusNotFound)
+			utils.HandleGenericResponse(w, "User not found", http.StatusBadRequest)
 		}else {
-			http.Error(w, "Failed to fetch user", http.StatusInternalServerError)
+			utils.HandleGenericResponse(w, "Failed to fetch user", http.StatusInternalServerError)
 		}
 
 		return
@@ -135,7 +137,7 @@ func(c *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 	var tasks []models.Task
 
 	if err := c.DB.Where("user_id = ?", userId).Preload("User").Find(&tasks).Error; err != nil {
-		http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
+		utils.HandleGenericResponse(w, "Failed to fetch tasks", http.StatusInternalServerError)
 		return 
 	}
 
@@ -146,9 +148,11 @@ func(c *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 		taskResponses = append(taskResponses, taskResponse)
 	}
 
+	response := utils.NewGenericResponse(http.StatusOK, "Success", taskResponses)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(taskResponses)
+	json.NewEncoder(w).Encode(response)
 }
 
 func(c *TaskController) FindTask(w http.ResponseWriter, r *http.Request) {
@@ -160,14 +164,14 @@ func(c *TaskController) FindTask(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 
 	if err != nil {
-		http.Error(w, "Invalid userId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid userId format", http.StatusBadRequest)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(taskIdStr, 10, 64)
 
 	if err != nil {
-		http.Error(w, "Invalid taskId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid taskId format", http.StatusBadRequest)
 		return 
 	}
 
@@ -177,18 +181,19 @@ func(c *TaskController) FindTask(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			http.Error(w, "Task not found", http.StatusNotFound)
+			utils.HandleGenericResponse(w, "Task not found", http.StatusBadRequest)
 		}else {
-			http.Error(w, "Failed to fetch task", http.StatusInternalServerError)
+			utils.HandleGenericResponse(w, "Failed to fetch task", http.StatusInternalServerError)
 		}
 		return
 	}
 
 	taskResponse := newTaskResponse(&task)
+	response := utils.NewGenericResponse(http.StatusOK, "Success", taskResponse)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(taskResponse)
+	json.NewEncoder(w).Encode(response)
 }
 
 func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
@@ -200,14 +205,14 @@ func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 
 	if err != nil {
-		http.Error(w, "Invalid userId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid userId format", http.StatusBadRequest)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(taskIdStr, 10, 64)
 
 	if err != nil {
-		http.Error(w, "Invalid taskId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid taskId format", http.StatusBadRequest)
 		return 
 	}
 
@@ -217,9 +222,9 @@ func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			http.Error(w, "Task not found", http.StatusNotFound)
+			utils.HandleGenericResponse(w, "Task not found", http.StatusBadRequest)
 		}else {	
-			http.Error(w, "Failed to fetch task", http.StatusInternalServerError)
+			utils.HandleGenericResponse(w, "Failed to fetch task", http.StatusInternalServerError)
 		}
 
 		return
@@ -228,7 +233,7 @@ func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	var updatedTask models.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&updatedTask); err != nil {
-		http.Error(w, "Invalid request format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid request format", http.StatusBadRequest)
 		return
 	}
 
@@ -249,15 +254,16 @@ func(c *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.DB.Save(&task).Error; err != nil {
-		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+		utils.HandleGenericResponse(w, "Failed to update task", http.StatusInternalServerError)
 		return 
 	}
 
 	taskResponse := newTaskResponse(&task)
+	response := utils.NewGenericResponse(http.StatusOK, "Success", taskResponse)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(taskResponse)
+	json.NewEncoder(w).Encode(response)
 }
 
 func(c *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
@@ -268,13 +274,13 @@ func(c *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid userId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid userId format", http.StatusBadRequest)
 		return
 	}
 
 	taskId, err := strconv.ParseUint(taskIdStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid taskId format", http.StatusBadRequest)
+		utils.HandleGenericResponse(w, "Invalid taskId format", http.StatusBadRequest)
 		return
 	}
 
@@ -284,20 +290,22 @@ func(c *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			http.Error(w, "Task not found", http.StatusNotFound)
+			utils.HandleGenericResponse(w, "Task not found", http.StatusBadRequest)
 		} else {
-			http.Error(w, "Failed to fetch task", http.StatusInternalServerError)
+			utils.HandleGenericResponse(w, "Failed to fetch task", http.StatusInternalServerError)
 		}
 		return
 	}
 
 	if err := c.DB.Delete(&task).Error; err != nil {
-		http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+		utils.HandleGenericResponse(w, "Failed to delete task", http.StatusInternalServerError)
 		return
 	}
 
+	response := utils.NewGenericResponse(http.StatusOK, "Task deleted successfully", nil)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("Task deleted successfully")
+	json.NewEncoder(w).Encode(response)
 
 }

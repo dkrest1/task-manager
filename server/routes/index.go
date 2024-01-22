@@ -15,7 +15,7 @@ func Routes(
 ) http.Handler {
 
 	router := mux.NewRouter()
-
+	
 	// Login
 	router.HandleFunc("/auth/login", authController.Login).Methods("POST")
 	router.HandleFunc("/auth/signup", userController.CreateUser).Methods("POST")
