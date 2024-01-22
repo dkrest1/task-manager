@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { logout } from '../../redux/authSlice';
 
 const Navbar = () => {
-  const [isLoggedIn, setLoggedIn] = useState(false);
+  const isAuthenticated = useSelector((state) =>  state.auth.isAuthenticated)
+  const dispatch = useDispatch()
 
-  const handleLogout = () => {
-    // Implement your logout logic and update the state
-    setLoggedIn(false);
+  const handleLogout = (e) => {
+    e.preventDefault()
+    dispatch(logout())
   };
 
   return (
@@ -42,7 +44,7 @@ const Navbar = () => {
             <Link to="/" className="text-white hover:underline">
               Home
             </Link>
-            {!isLoggedIn && (
+            {!isAuthenticated && (
               <>
                 <Link to="/signup" className="text-white hover:underline">
                   Sign Up
@@ -52,7 +54,7 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-            {isLoggedIn && (
+            {isAuthenticated && (
               <>
                 <Link to="/profiles" className="text-white hover:underline">
                   Profiles
