@@ -5,7 +5,9 @@ import SignUp from "./components/pages/SignUp";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 import { ToastContainer } from 'react-toastify';
+import Dashboard from "./components/pages/Dashboard";
 import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
       <Route path="/" exact Component={Landing} />
       <Route path="/login" Component={Login}/>
       <Route path="/signup" Component={SignUp}/>
+      <Route path="/dashboard" Component={Dashboard}/>
      </Routes>
      <Footer/>
      <ToastContainer />
