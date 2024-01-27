@@ -1,12 +1,12 @@
 # TASK MANAGER
 
-A simple task manager application written in Golang and React 
+A simple task manager application written in Golang
 
 ## REQUIREMENTS
 
 - GO 1.2x installed
-- Node 20.x installed
-- Npm 
+- Sqlite 
+
 
 ## GET STATRTED
 
@@ -18,13 +18,6 @@ A simple task manager application written in Golang and React
 - spin up endpoint server
 
 ```bash
-$ cd task-manager/server
+$ cd task-manager
 $ go run main.go
-```
-
-- spin up client server
-
-```bash
-$ cd task-manager/client
-$ npm run dev
 ```
