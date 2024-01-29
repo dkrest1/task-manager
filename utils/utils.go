@@ -23,7 +23,7 @@ func ComparePasswords(hashedPassword string, password string) error {
 }
 
 func GenerateToken(userId uint, email string, secretKey string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(1 * time.Minute)
 
 	claims := jwt.MapClaims{
 		"userId": userId,
