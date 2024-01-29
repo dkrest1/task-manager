@@ -4,7 +4,39 @@
 *.sqlite3
 *.db
 
+# tmp file
+tmp/
 
-#env
+# Compiled binary
+*.exe
+*.o
+*.out
+*.test
+
+# Dependency directories
+/vendor/
+/Godeps/
+
+# Compiled Go code
+*.a
+*.test
+*.prof
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-specific dirs
+/_obj/
+/_test/
+
+# IDE directories
+.idea/
+.vscode/
+
+# Compiled versions of your application, e.g., main
+main
+
+# Binary output
+/bin/
+
 .env
-

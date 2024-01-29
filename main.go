@@ -9,6 +9,7 @@ import (
 	"github.com/dkrest1/task-manager/configs"
 	"github.com/dkrest1/task-manager/controllers"
 	"github.com/dkrest1/task-manager/routes"
+	_ "github.com/dkrest1/task-manager/docs"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
