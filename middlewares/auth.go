@@ -25,14 +25,14 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		tokenString := r.Header.Get("Authorization")
 
 		if tokenString == "" {
-			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+			utils.HandleGenericResponse(w, "Authorization header is missing", http.StatusUnauthorized)
 			return
 		} 
 
 		splitToken := strings.Split(tokenString, "Bearer ")
 
 		if len(splitToken) != 2 {
-			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			utils.HandleGenericResponse(w, "Invalid authorization header format", http.StatusUnauthorized)
 			return
 		}
 
@@ -41,7 +41,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		claims, err := utils.ValidateToken(token, secretKey)
 
 		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			utils.HandleGenericResponse(w, "Invalid token, please login again", http.StatusUnauthorized)
 			return
 		}
 
@@ -55,7 +55,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 
 		if result.Error != nil {
 			log.Printf("Error fetching user from the database: %v", result.Error)
-			http.Error(w, "Unauthorized - User not found", http.StatusUnauthorized)
+			utils.HandleGenericResponse(w, "Unauthorized - User not found", http.StatusUnauthorized)
 			return
 		}
 

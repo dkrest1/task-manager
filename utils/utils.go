@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,7 +23,7 @@ func ComparePasswords(hashedPassword string, password string) error {
 }
 
 func GenerateToken(userId uint, email string, secretKey string) (string, error) {
-	expirationTime := time.Now().Add(1 * time.Minute)
+	expirationTime := time.Now().Add(24 * time.Hour).Unix()
 
 	claims := jwt.MapClaims{
 		"userId": userId,
