@@ -3,7 +3,7 @@ package tests
 import "testing"
 
 func TestCreateUser(t *testing.T) {
-
+	// create user test
 }
 
 func TestGetUsers(t *testing.T) {
