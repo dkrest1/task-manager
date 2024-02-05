@@ -22,7 +22,8 @@ jobs:
       run: go build -o main
 
     - name: Run Application
-      run: ./main
+      run: |
+        ./main
       env: 
         PORT: ${{ secrets.PORT }}
         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
