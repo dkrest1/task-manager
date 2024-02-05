@@ -23,3 +23,6 @@ jobs:
 
     - name: Run Application
       run: ./main
+      env: 
+        PORT: ${{ secrets.PORT }}
+        JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
