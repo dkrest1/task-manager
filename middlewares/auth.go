@@ -20,6 +20,10 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		log.Fatal("JWT_SECRET_KEY not set in env")
 	}
 
+	if secretKey == "" {
+		log.Printf("JWT_SECRET_KEY is empty")
+	}
+
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
