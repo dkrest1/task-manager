@@ -19,3 +19,7 @@ func InitDB () {
 
 	DB = db
 }
+
+func SetTestDB(db *gorm.DB) {
+	DB = db
+}
