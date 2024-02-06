@@ -14,11 +14,7 @@ import (
 
 
 func Auth(next http.HandlerFunc) http.HandlerFunc {
-	secretKey, exist := os.LookupEnv("JWT_SECRET_KEY")
-
-	if !exist {
-		log.Fatal("JWT_SECRET_KEY not set in env")
-	}
+	secretKey := os.Getenv("JWT_SECRET_KEY")
 
 	if secretKey == "" {
 		log.Printf("JWT_SECRET_KEY is empty")

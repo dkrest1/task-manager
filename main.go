@@ -21,6 +21,7 @@ func main() {
 		log.Fatal("Error loading .env file:", err)
 	}
 
+
 	// init DB
 	configs.InitDB()
 
@@ -35,9 +36,9 @@ func main() {
 	// enable cors
 	handler := cors.Default().Handler(appRoutes)
 
-	port, exist := os.LookupEnv("PORT")
+	port := os.Getenv("PORT")
 
-	if !exist {
+	if port == "" {
 		log.Fatal("PORT not set in env")
 	}
 

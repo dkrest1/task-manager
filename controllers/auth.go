@@ -10,7 +10,7 @@ import (
 	"github.com/dkrest1/task-manager/configs"
 	"github.com/dkrest1/task-manager/models"
 	"github.com/dkrest1/task-manager/utils"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -24,12 +24,7 @@ type AuthController struct{
 }
 
 func NewAuthController () *AuthController {
-	//load env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-
+	
 	return &AuthController{
 		DB: configs.DB,
 	}
@@ -71,10 +66,10 @@ func(c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secretKey, exist := os.LookupEnv("JWT_SECRET_KEY")
+	secretKey := os.Getenv("JWT_SECRET_KEY")
 
-	if !exist {
-		log.Fatal("JWT_SECRET_KEY not set in env")
+	if secretKey == "" {
+		log.Printf("JWT_SECRET_KEY is empty")
 	}
 
 	token, err := utils.GenerateToken(existingUser.ID, existingUser.Email, secretKey)

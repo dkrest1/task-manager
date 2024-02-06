@@ -31,9 +31,6 @@ WORKDIR /app
 # Copy built app to work directory
 COPY --from=builder /app/main .
 
-# Copy env file
-COPY .env .env
-
 # Expose port
 EXPOSE 9090
 
