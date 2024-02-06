@@ -48,7 +48,7 @@ jobs:
           # context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/boot-back:${{ github.sha }}, ${{ secrets.DOCKER_USERNAME }}/boot-back:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/task-manager:${{ github.sha }}, ${{ secrets.DOCKER_USERNAME }}/task-manager:latest
           platforms: linux/arm64
 
       - name: SSH into EC2 Instance and Deploy
