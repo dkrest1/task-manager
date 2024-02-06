@@ -23,7 +23,6 @@ jobs:
 
     - name: Run Application
       run: |
-        echo "PORT=${{ secrets.PORT }}"
         ./main
       env: 
         PORT: ${{ secrets.PORT }}
