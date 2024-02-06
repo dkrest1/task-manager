@@ -21,7 +21,7 @@ func main() {
 	// 	log.Fatal("Error loading .env file:", err)
 	// }
 
-	// init DB
+	// init Config for DB
 	configs.InitDB()
 
 	// Controllers
