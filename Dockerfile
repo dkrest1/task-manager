@@ -1,17 +1,41 @@
-# Go image as the base image
+# Mini golang base image
 FROM golang:1.20-alpine as builder
 
-# Set working directory
+RUN apk add --no-cache build-base
+
+
+# Create work dir
 WORKDIR /app
 
-# Copy application code into the working directory
+# Copy go module files and download dependecy
+COPY go.mod ./
+
+COPY go.sum ./
+
+RUN go mod download
+
+# Copy the entire application to directory
 COPY . .
 
-# Builid the application
-RUN go build -o main
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app -a -ldflags '-linkmode external -extldflags "-static"' .
 
-# Expose application port
-EXPOSE ${PORT}
+# Build the application
+RUN go build -o main .
 
-# Run executable
-CMD [ "./main" ]
+# Image for fina stage
+FROM alpine:latest
+
+# create work dir
+WORKDIR /app
+
+# Copy built app to work directory
+COPY --from=builder /app/main .
+
+# Copy env file
+COPY .env .env
+
+# Expose port
+EXPOSE 9090
+
+# Run the executable
+CMD ["./main"]

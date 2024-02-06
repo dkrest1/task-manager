@@ -1,6 +1,6 @@
 module github.com/dkrest1/task-manager
 
-go 1.21.5
+go 1.21
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
