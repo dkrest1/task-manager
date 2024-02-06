@@ -40,8 +40,8 @@ jobs:
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker buildx create --use
-          docker buildx build -t yourusername/yourapp:latest -f .
-          docker push yourusername/yourapp:latest
+          docker buildx build -t dkrest/task-manager:latest -f .
+          docker push dkrest/task-manager:latest
   
       - name: SSH into EC2 Instance and Deploy
         uses: appleboy/ssh-action@master
@@ -53,8 +53,8 @@ jobs:
   
           script: |
             sleep 10
-            docker pull yourusername/yourapp:latest
-            docker stop yourapp || true
-            docker rm yourapp || true
-            docker run -d -p 8080:8080 --name yourapp yourusername/yourapp:latest || (echo "Deployment failed" && exit 1)
+            docker pull dkrest/task-manager:latest
+            docker stop task-manager || true
+            docker rm task-manager || true
+            docker run -d -p 9090:9090 --name task-manager dkrest1/task-manager:latest || (echo "Deployment failed" && exit 1)
 
