@@ -10,16 +10,16 @@ import (
 	"github.com/dkrest1/task-manager/controllers"
 	"github.com/dkrest1/task-manager/routes"
 	_ "github.com/dkrest1/task-manager/docs"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
 func main() {
 
-	// Load env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file:", err)
-	}
+	// // Load env
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatal("Error loading .env file:", err)
+	// }
 
 	// init DB
 	configs.InitDB()
