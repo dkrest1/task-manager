@@ -45,7 +45,6 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
-          # context: .
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/task-manager:${{ github.sha }}, ${{ secrets.DOCKER_USERNAME }}/task-manager:latest
@@ -62,9 +61,8 @@ jobs:
           script: |
             sleep 10
             set -e 
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull dkrest1/task-manager:latest  
+            docker pull dkrest/task-manager:latest  
             docker stop task-manager || true
             docker rm task-manager || true
-            docker run -d -p 9090:9090 --name task-manager dkrest1/task-manager:latest > deployment.log 2>&1 || (echo "Deployment failed" && cat deployment.log && exit 1)
+            docker run -d -p 9090:9090 --name task-manager dkrest/task-manager:latest > deployment.log 2>&1 || (echo "Deployment failed" && cat deployment.log && exit 1)
             docker ps | grep task-manager
